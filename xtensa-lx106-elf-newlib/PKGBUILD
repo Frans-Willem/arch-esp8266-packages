@@ -1,0 +1,69 @@
+# $Id$
+# Maintainer: Frans-Willem Hardijzer <fw@hardijzer.nl>
+
+_target=xtensa-lx106-elf
+pkgname=$_target-newlib
+pkgver=2.0.0
+pkgrel=1
+_upstream_ver=$pkgver
+pkgdes='A C standard library implementation intended for use on embedded systems (XTensa LX106)'
+arch=(any)
+url='http://www.sourceware.org/newlib/'
+license=(BSD)
+makedepends=($_target-gcc-bootstrap)
+options=(!emptydirs !strip)
+source=(ftp://sourceware.org/pub/newlib/newlib-$_upstream_ver.tar.gz
+	git+https://github.com/jcmvbkbc/crosstool-NG.git#branch=lx106-g++-1.21.0)
+sha1sums=('ea6b5727162453284791869e905f39fb8fab8d3f'
+          'SKIP')
+_basedir=newlib-$_upstream_ver	  
+prepare() {
+  cd $_basedir
+  _patches=`ls ../crosstool-NG/local-patches/newlib/2.0.0/*.patch`
+  for _patch in $_patches
+  do
+    echo Applying $_patch
+    patch -p1 < $_patch
+  done
+}
+build() {
+  rm -rf build-newlib
+  mkdir build-newlib
+
+  # crosstool-NG configure flags
+  # --host=x86_64-build_unknown-linux-gnu
+  # --target=xtensa-lx106-elf
+  # --prefix=/...
+  #X --disable-newlib-io-c99-formats
+  #X --disable-newlib-io-long-long
+  #X --disable-newlib-io-float
+  #X --disable-newlib-io-long-double
+  #X --disable-newlib-supplied-syscalls
+  # --enable-target-optspace
+
+  export CFLAGS_FOR_TARGET='-g -O2 -ffunction-sections -fdata-sections'
+  cd "$srcdir"/build-newlib
+  ../newlib-$_upstream_ver/configure \
+    --target=$_target \
+    --prefix=/usr \
+    --disable-newlib-supplied-syscalls \
+    --disable-nls \
+    --disable-newlib-io-c99-formats \
+    --disable-newlib-io-long-long \
+    --disable-newlib-io-float \
+    --disable-newlib-io-long-double \
+    --enable-target-optspace
+  make
+}
+
+package() {
+  cd "$srcdir"/build-newlib
+  make DESTDIR="$pkgdir" install -j1
+
+  find "$pkgdir"/usr/$_target/lib \( -name "*.a" -or -name "*.o" \) -exec $_target-objcopy -R .comment -R .note -R .debug_info -R .debug_aranges -R .debug_pubnames -R .debug_pubtypes -R .debug_abbrev -R .debug_line -R .debug_str -R .debug_ranges -R .debug_loc '{}' \;
+
+  rm "$pkgdir"/usr/share/info/*.info
+
+  install -d "$pkgdir"/usr/share/licenses/$pkgname/
+  install -m644 -t "$pkgdir"/usr/share/licenses/$pkgname/ "$srcdir"/newlib-$_upstream_ver/COPYING*
+}
