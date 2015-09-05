@@ -2,15 +2,16 @@
 # Maintainer: Frans-Willem Hardijzer <fw@hardijzer.nl>
 
 _target=xtensa-lx106-elf
-pkgname=$_target-newlib
+pkgname=$_target-newlib-jcmvbkbc
 pkgver=2.0.0
 pkgrel=1
+provides=('$_target-newlib=$pkgver')
 _upstream_ver=$pkgver
 pkgdes='A C standard library implementation intended for use on embedded systems (XTensa LX106)'
 arch=(any)
 url='http://www.sourceware.org/newlib/'
 license=(BSD)
-makedepends=($_target-gcc-bootstrap)
+makedepends=($_target-gcc)
 options=(!emptydirs !strip)
 source=(ftp://sourceware.org/pub/newlib/newlib-$_upstream_ver.tar.gz
 	git+https://github.com/jcmvbkbc/crosstool-NG.git#branch=lx106-g++-1.21.0)
