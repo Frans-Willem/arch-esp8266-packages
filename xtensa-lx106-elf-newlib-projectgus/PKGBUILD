@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Frans-Willem Hardijzer <fw@hardijzer.nl>
+
+_target=xtensa-lx106-elf
+pkgname=$_target-newlib-projectgus
+pkgver=2.2.0
+pkgrel=1
+provides=('$_target-newlib=$pkgver')
+_upstream_ver=$pkgver
+pkgdes='A C standard library implementation intended for use on embedded systems (XTensa LX106)'
+arch=(any)
+url='http://www.sourceware.org/newlib/'
+license=(BSD)
+makedepends=($_target-gcc)
+options=(!emptydirs !strip)
+source=(git+https://github.com/projectgus/newlib-xtensa)
+sha1sums=('SKIP')
+_basedir=newlib-xtensa
+prepare() {
+  cd $_basedir
+}
+build() {
+  rm -rf build-newlib
+  mkdir build-newlib
+
+  export CFLAGS_FOR_TARGET=''
+  cd "$srcdir"/build-newlib
+  ../newlib-xtensa/configure \
+    --with-newlib \
+    --enable-multilib \
+    --target=$_target \
+    --prefix=/usr \
+    --enable-newlib-supplied-syscalls \
+    --disable-newlib-io-c99-formats \
+    --disable-newlib-io-long-long \
+    --disable-newlib-io-float \
+    --disable-newlib-io-long-double \
+    --enable-target-optspace \
+    --program-transform-name="s&^&xtensalx106-elf-&" \
+    --disable-option-checking \
+    --enable-newlib-nano-malloc \
+    --enable-newlib-nano-formatted-io
+  make
+}
+
+package() {
+  cd "$srcdir"/build-newlib
+  make DESTDIR="$pkgdir" install -j1
+
+  #find "$pkgdir"/usr/$_target/lib \( -name "*.a" -or -name "*.o" \) -exec $_target-objcopy -R .comment -R .note -R .debug_info -R .debug_aranges -R .debug_pubnames -R .debug_pubtypes -R .debug_abbrev -R .debug_line -R .debug_str -R .debug_ranges -R .debug_loc '{}' \;
+
+  rm "$pkgdir"/usr/share/info/*.info
+
+  install -d "$pkgdir"/usr/share/licenses/$pkgname/
+  install -m644 -t "$pkgdir"/usr/share/licenses/$pkgname/ "$srcdir"/newlib-xtensa/COPYING*
+}
