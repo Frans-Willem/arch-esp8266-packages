@@ -1,0 +1,37 @@
+From a14608ac0b8fce3ba0742c93227d6fcb42f8c7dc Mon Sep 17 00:00:00 2001
+From: Frans-Willem Hardijzer <fw@hardijzer.nl>
+Date: Tue, 8 Sep 2015 22:43:48 +0200
+Subject: [PATCH] Fixed up _default_types.h so uint_least8/16/32_t are properly
+ recognized by the rest of newlib
+
+---
+ newlib/libc/sys/xtensa/include/machine/_default_types.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/newlib/libc/sys/xtensa/include/machine/_default_types.h b/newlib/libc/sys/xtensa/include/machine/_default_types.h
+index 1d55697..03bdc52 100644
+--- a/newlib/libc/sys/xtensa/include/machine/_default_types.h
++++ b/newlib/libc/sys/xtensa/include/machine/_default_types.h
+@@ -32,15 +32,19 @@ typedef unsigned long long __uint64_t;
+ 
+ typedef __int8_t __int_least8_t;
+ typedef __uint8_t __uint_least8_t;
++#define ___int_least8_t_defined
+ 
+ typedef __int16_t __int_least16_t;
+ typedef __uint16_t __uint_least16_t;
++#define ___int_least16_t_defined
+ 
+ typedef __int32_t __int_least32_t;
+ typedef __uint32_t __uint_least32_t;
++#define ___int_least32_t_defined
+ 
+ typedef __int64_t __int_least64_t;
+ typedef __uint64_t __uint_least64_t;
++#define ___int_least64_t_defined
+ 
+ typedef __INTPTR_TYPE__ __intptr_t;
+ typedef __UINTPTR_TYPE__ __uintptr_t;
+-- 
+2.5.1
+

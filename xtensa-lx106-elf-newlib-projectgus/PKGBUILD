@@ -13,11 +13,15 @@ url='http://www.sourceware.org/newlib/'
 license=(BSD)
 makedepends=($_target-gcc)
 options=(!emptydirs !strip)
-source=(git+https://github.com/projectgus/newlib-xtensa)
-sha1sums=('SKIP')
+source=(git+https://github.com/projectgus/newlib-xtensa
+        0001-Fixed-up-_default_types.h-so-uint_least8-16-32_t-are.patch)
+sha1sums=('SKIP'
+          '0b16a9980b9751b5fedff8249babc6c1ce7eb2e2')
 _basedir=newlib-xtensa
 prepare() {
   cd $_basedir
+
+  patch -p1 < ../0001-Fixed-up-_default_types.h-so-uint_least8-16-32_t-are.patch
 }
 build() {
   rm -rf build-newlib
