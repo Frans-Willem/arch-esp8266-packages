@@ -40,7 +40,7 @@ build() {
     --disable-newlib-io-float \
     --disable-newlib-io-long-double \
     --enable-target-optspace \
-    --program-transform-name="s&^&xtensalx106-elf-&" \
+    --program-transform-name="s&^&xtensa-lx106-elf-&" \
     --disable-option-checking \
     --enable-newlib-nano-malloc \
     --enable-newlib-nano-formatted-io
