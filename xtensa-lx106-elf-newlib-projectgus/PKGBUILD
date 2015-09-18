@@ -23,7 +23,7 @@ build() {
   rm -rf build-newlib
   mkdir build-newlib
 
-  export CFLAGS_FOR_TARGET=''
+  export CFLAGS_FOR_TARGET='-g -Os -ffunction-sections -fdata-sections -fno-exceptions -mlongcalls'
   cd "$srcdir"/build-newlib
   ../newlib-xtensa/configure \
     --with-newlib \
@@ -38,7 +38,7 @@ build() {
     --enable-target-optspace \
     --program-transform-name="s&^&xtensa-lx106-elf-&" \
     --disable-option-checking \
-    --enable-newlib-nano-malloc \
+    --disable-newlib-nano-malloc \
     --enable-newlib-nano-formatted-io
   make
 }
