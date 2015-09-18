@@ -23,7 +23,9 @@ build() {
   rm -rf build-newlib
   mkdir build-newlib
 
-  export CFLAGS_FOR_TARGET='-g -Os -ffunction-sections -fdata-sections -fno-exceptions -mlongcalls'
+  # CFLAGS_FOR_TARGET is not used, so patch it in manually
+  mv ./newlib-xtensa/newlib/configure.host ./configure.host.original
+  sed -e 's/^\s*newlib_cflags=\s*$/newlib_cflags="-ffunction-sections -fdata-sections -DMALLOC_PROVIDED -DABORT_PROVIDED -DSIGNAL_PROVIDED -DPREFER_SIZE_OVER_SPEED"/' < ./configure.host.original > ./newlib-xtensa/newlib/configure.host
   cd "$srcdir"/build-newlib
   ../newlib-xtensa/configure \
     --with-newlib \
