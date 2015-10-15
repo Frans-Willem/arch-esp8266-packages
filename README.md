@@ -10,7 +10,7 @@ There are several ways to break this cycle:
 
 ## Compiling from scratch
 * First compile and install xtensa-lx106-elf-binutils
-* Edit xtensa-lx106-elf-gcc and change --enable-languages from 'c,c++' to 'c' so it will only compile for C.
+* Edit xtensa-lx106-elf-gcc and \_bootstrap=0 to \_bootstrap=1, so it will only compile for C.
 * Compile and install the changed xtensa-lx106-elf-gcc
 * Compile and install newlib (I recommend the projectgus version)
 * Compile and install the original unchanged xtensa-lx106-elf-gcc.

@@ -5,6 +5,8 @@ pkgname=$_target-gcc
 pkgver=5.2.0
 _islver=0.14.1
 pkgrel=1
+# set _bootstrap to 1 to only compile C, to bootstrap newlib.
+_bootstrap=0
 #_snapshot=5-20150519
 pkgdesc='The GNU Compiler Collection - cross compiler for Xtensa LX106 target'
 arch=(i686 x86_64)
@@ -109,6 +111,11 @@ _build_gcc() {
 #X --disable-nls
 #X --disable-multilib
 
+  if [ "$_bootstrap" -gt 0 ]; then
+	  _enable_languages=c
+  else
+	  _enable_languages=c,c++
+  fi
   $srcdir/$_basedir/configure \
     --target=$_target \
     --prefix=/usr \
@@ -116,7 +123,7 @@ _build_gcc() {
     --with-sysroot=/usr/$_target \
     --with-native-system-header-dir=/include \
     --libexecdir=/usr/lib \
-    --enable-languages=c,c++ \
+    --enable-languages=$_enable_languages \
     --enable-lto \
     --enable-target-optspace \
     --disable-libffi \
@@ -155,14 +162,19 @@ package() {
   make DESTDIR="$pkgdir" install -j1
 
   # strip target binaries
-  find "$pkgdir"/usr/lib/gcc/$_target/$pkgver "$pkgdir"/usr/$_target/lib -type f -and \( -name \*.a -or -name \*.o \) -exec $_target-objcopy -R .comment -R .note -R .debug_info -R .debug_aranges -R .debug_pubnames -R .debug_pubtypes -R .debug_abbrev -R .debug_line -R .debug_str -R .debug_ranges -R .debug_loc '{}' \;
+  if [ "$_bootstrap" -gt 0 ]; then
+	_libdir=""
+  else
+	_libdir="$pkgdir"/usr/$_target/lib
+  fi
+  find "$pkgdir"/usr/lib/gcc/$_target/$pkgver $_libdir -type f -and \( -name \*.a -or -name \*.o \) -exec $_target-objcopy -R .comment -R .note -R .debug_info -R .debug_aranges -R .debug_pubnames -R .debug_pubtypes -R .debug_abbrev -R .debug_line -R .debug_str -R .debug_ranges -R .debug_loc '{}' \;
 
   # strip host binaries
   find "$pkgdir"/usr/bin/ "$pkgdir"/usr/lib/gcc/$_target/$pkgver -type f -and \( -executable \) -exec strip '{}' \;
 
   # Remove files that conflict with host gcc package
-  rm -r "$pkgdir"/usr/share/man/man7
-  rm -r "$pkgdir"/usr/share/info
-  rm "$pkgdir"/usr/lib/libcc1.*
-  rm -r "$pkgdir"/usr/share/gcc-$pkgver
+  rm -rf "$pkgdir"/usr/share/man/man7
+  rm -rf "$pkgdir"/usr/share/info
+  rm -f "$pkgdir"/usr/lib/libcc1.*
+  rm -rf "$pkgdir"/usr/share/gcc-$pkgver
 }
